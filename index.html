@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>EvenGo Paris</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #071018;
+            --bg-elevated: rgba(12, 20, 30, 0.82);
+            --bg-card: rgba(15, 25, 38, 0.9);
+            --text: #f3f7fb;
+            --muted: #93a4b5;
+            --line: rgba(255, 255, 255, 0.08);
+            --accent: #67f58a;
+            --accent-strong: #35d65f;
+            --danger: #ff7b7b;
+            --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        * { box-sizing: border-box; }
+
+        @keyframes riseIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+                filter: blur(2px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes softPulseOk {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(103, 245, 138, 0.22);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 18px rgba(103, 245, 138, 0.45);
+                transform: scale(1.06);
+            }
+        }
+
+        @keyframes softPulseError {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(255, 123, 123, 0.22);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 18px rgba(255, 123, 123, 0.45);
+                transform: scale(1.06);
+            }
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(103, 245, 138, 0.14), transparent 30%),
+                radial-gradient(circle at 85% 10%, rgba(74, 144, 226, 0.16), transparent 22%),
+                linear-gradient(180deg, #08111a 0%, #050a10 100%);
+        }
+
+        .app {
+            width: min(100%, 720px);
+            margin: 0 auto;
+            padding: 20px 16px 28px;
+        }
+
+        .hero {
+            padding: 10px 4px 18px;
+            animation: riseIn 420ms ease both;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.03);
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 14px 0 10px;
+            font-size: clamp(2rem, 8vw, 3.2rem);
+            line-height: 0.95;
+            letter-spacing: -0.05em;
+        }
+
+        .subtitle {
+            margin: 0;
+            max-width: 42ch;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(16px);
+            opacity: 0;
+            animation: riseIn 520ms ease forwards;
+        }
+
+        .grid > .card:nth-of-type(1) { animation-delay: 80ms; }
+        .grid > .card:nth-of-type(2) { animation-delay: 150ms; }
+        .grid > .card:nth-of-type(3) { animation-delay: 220ms; }
+        .grid > .card:nth-of-type(4) { animation-delay: 290ms; }
+
+        .card-title {
+            margin: 0 0 12px;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .fields {
+            display: grid;
+            gap: 10px;
+        }
+
+        label {
+            display: grid;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        input, button {
+            border-radius: 16px;
+            font-size: 16px;
+            min-height: 50px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        input:focus {
+            border-color: rgba(103, 245, 138, 0.55);
+            box-shadow: 0 0 0 4px rgba(103, 245, 138, 0.12);
+        }
+
+        .primary-btn, .ghost-btn, .preset-action, .chip-btn {
+            border: none;
+            cursor: pointer;
+            transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+        }
+
+        .primary-btn {
+            width: 100%;
+            margin-top: 14px;
+            background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+            color: #04210f;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            box-shadow: 0 16px 32px rgba(53, 214, 95, 0.2);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 34px rgba(53, 214, 95, 0.3);
+        }
+
+        .ghost-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .ghost-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .primary-btn:active, .ghost-btn:active, .preset-action:active, .chip-btn:active {
+            transform: scale(0.98);
+        }
+
+        .preset-toolbar {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .preset-toolbar .ghost-btn {
+            width: auto;
+            min-height: 46px;
+            font-size: 15px;
+            font-weight: 650;
+        }
+
+        .preset-toolbar .add-btn {
+            background: rgba(103, 245, 138, 0.1);
+            border-color: rgba(103, 245, 138, 0.28);
+            color: var(--accent);
+        }
+
+        .preset-toolbar .reset-btn {
+            background: rgba(255, 123, 123, 0.08);
+            border-color: rgba(255, 123, 123, 0.24);
+            color: #ff9d9d;
+        }
+
+        .preset-toolbar .confirm-reset-btn {
+            background: rgba(255, 90, 90, 0.2);
+            border-color: rgba(255, 90, 90, 0.4);
+            color: #ffc3c3;
+        }
+
+        .preset-toolbar .reset-btn.is-cancel {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.16);
+            color: var(--text);
+        }
+
+        .is-hidden {
+            display: none !important;
+        }
+
+        .preset-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .preset-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            min-height: 60px;
+            padding: 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            color: var(--muted);
+            background: rgba(140, 140, 140, 0.12);
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+        }
+
+        .preset-empty strong {
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .api-card {
+            background: linear-gradient(180deg, rgba(15, 25, 38, 0.6), rgba(12, 20, 30, 0.5));
+            border: 1px solid rgba(103, 245, 138, 0.15);
+            cursor: pointer;
+            transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+        }
+
+        .api-card:hover {
+            transform: translateY(-1px);
+            border-color: rgba(103, 245, 138, 0.24);
+            box-shadow: 0 26px 62px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(103, 245, 138, 0.08) inset;
+        }
+
+        .api-card:focus-visible {
+            outline: 2px solid rgba(103, 245, 138, 0.65);
+            outline-offset: 3px;
+        }
+
+        .api-container {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 4px 0;
+        }
+
+        .api-meta {
+            width: 100%;
+            display: grid;
+            gap: 6px;
+        }
+
+        .api-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .api-edit-hint {
+            margin: 0;
+            font-size: 12px;
+            color: var(--accent);
+            letter-spacing: 0.01em;
+            font-weight: 700;
+        }
+
+        .api-status-bubble {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: rgba(140, 140, 140, 0.6);
+            box-shadow: 0 0 12px rgba(140, 140, 140, 0.3);
+            transition: all 300ms ease;
+        }
+
+        .api-status-bubble.is-ok {
+            background: linear-gradient(135deg, #67f58a, #35d65f);
+            box-shadow: 0 0 16px rgba(103, 245, 138, 0.4);
+            animation: softPulseOk 2200ms ease-in-out infinite;
+        }
+
+        .api-status-bubble.is-error {
+            background: linear-gradient(135deg, #ff7b7b, #ff5252);
+            box-shadow: 0 0 16px rgba(255, 123, 123, 0.4);
+            animation: softPulseError 2200ms ease-in-out infinite;
+        }
+
+        .api-label {
+            margin: 0 0 2px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.02em;
+        }
+
+        .api-key-action {
+            min-height: 34px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(103, 245, 138, 0.28);
+            background: rgba(103, 245, 138, 0.12);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: transform 120ms ease, background 120ms ease;
+        }
+
+        .api-key-action:hover {
+            transform: translateY(-1px);
+            background: rgba(103, 245, 138, 0.2);
+        }
+
+        .api-description {
+            margin: 0;
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 0.01em;
+        }
+
+        .api-key-preview {
+            margin: 0;
+            font-size: 11px;
+            color: #9cc8ab;
+            letter-spacing: 0.01em;
+        }
+
+        .api-key-editor {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .api-key-input {
+            min-height: 40px;
+            border-radius: 12px;
+            font-size: 13px;
+            padding: 10px 12px;
+        }
+
+        .api-key-btn {
+            min-height: 40px;
+            padding: 0 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .api-key-btn.save {
+            border-color: rgba(103, 245, 138, 0.32);
+            background: rgba(103, 245, 138, 0.16);
+            color: var(--accent);
+        }
+
+        .preset-item {
+            padding: 10px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 25, 38, 0.4);
+            transition: all 200ms ease;
+            opacity: 0;
+            animation: riseIn 340ms ease forwards;
+            animation-delay: calc(var(--preset-index, 0) * 50ms);
+        }
+
+        .preset-item:hover {
+            border-color: rgba(103, 245, 138, 0.15);
+            background: rgba(15, 25, 38, 0.6);
+        }
+
+        .preset-item.is-editing {
+            border-color: rgba(103, 245, 138, 0.32);
+            box-shadow: 0 0 0 1px rgba(103, 245, 138, 0.1) inset;
+            background: rgba(103, 245, 138, 0.04);
+        }
+
+        .preset-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .preset-name {
+            width: 100%;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .preset-name-input {
+            min-height: 46px;
+        }
+
+        .preset-name-display {
+            display: grid;
+            gap: 4px;
+            width: 100%;
+            min-height: 46px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .preset-name-value {
+            color: var(--text);
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.15;
+        }
+
+        .preset-name-hint {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.1;
+            letter-spacing: 0.01em;
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .preset-action {
+            min-height: 32px;
+            padding: 0 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--muted);
+            transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
+        }
+
+        .preset-action:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .preset-action:active {
+            transform: translateY(0);
+        }
+
+        .preset-action.use {
+            background: rgba(103, 245, 138, 0.2);
+            color: var(--accent);
+            border-color: rgba(103, 245, 138, 0.3);
+        }
+
+        .preset-action.use:hover {
+            background: rgba(103, 245, 138, 0.3);
+            box-shadow: 0 0 12px rgba(103, 245, 138, 0.25);
+        }
+
+        .preset-action.edit {
+            background: rgba(74, 144, 226, 0.2);
+            color: #4a90e2;
+            border-color: rgba(74, 144, 226, 0.3);
+        }
+
+        .preset-action.edit:hover {
+            background: rgba(74, 144, 226, 0.3);
+            box-shadow: 0 0 12px rgba(74, 144, 226, 0.25);
+        }
+
+        .preset-action.delete {
+            background: rgba(255, 123, 123, 0.2);
+            color: var(--danger);
+            border-color: rgba(255, 123, 123, 0.3);
+        }
+
+        .preset-action.delete:hover {
+            background: rgba(255, 123, 123, 0.3);
+            box-shadow: 0 0 12px rgba(255, 123, 123, 0.25);
+        }
+
+        .preset-action.save {
+            background: rgba(103, 245, 138, 0.25);
+            color: var(--accent);
+            font-weight: 700;
+            border: 1px solid rgba(103, 245, 138, 0.4);
+        }
+
+        .preset-action.save:hover {
+            background: rgba(103, 245, 138, 0.35);
+            box-shadow: 0 0 12px rgba(103, 245, 138, 0.3);
+        }
+
+        .preset-action.cancel {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--muted);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preset-action.cancel:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip-btn {
+            padding: 0 14px;
+            min-height: 42px;
+            border-radius: 999px;
+            border: 1px solid rgba(103, 245, 138, 0.22);
+            background: rgba(103, 245, 138, 0.08);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .hint {
+            margin: 10px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        #logs {
+            color: #9fb1c2;
+            font-size: 12px;
+            text-align: left;
+            display: grid;
+            gap: 6px;
+        }
+
+        #logs p {
+            margin: 0;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .footer-credit {
+            margin: 18px 6px 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .footer-credit a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .footer-credit a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .app { padding: 12px; }
+            .card { border-radius: 20px; padding: 14px; }
+            .preset-grid { grid-template-columns: 1fr; }
+            .preset-toolbar { grid-template-columns: 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .hero,
+            .card,
+            .preset-item,
+            .api-status-bubble,
+            .primary-btn,
+            .ghost-btn,
+            .preset-action {
+                animation: none !important;
+                transition: none !important;
+                transform: none !important;
+                opacity: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app">
+        <header class="hero">
+            <span id="hero-eyebrow" class="eyebrow">Even Realities · EvenGo Paris</span>
+            <h1 id="app-title">EvenGo Paris</h1>
+            <p id="app-subtitle" class="subtitle">Recherche rapide, presets modifiables et affichage pensé pour le téléphone comme pour les lunettes.</p>
+        </header>
+
+        <section class="grid">
+            <div class="card">
+                <p id="journey-card-title" class="card-title">Trajet</p>
+                <div class="fields">
+                    <label>
+                        <span id="departure-label">Départ</span>
+                        <input type="text" id="input-depart" placeholder="Ex: Châtelet">
+                    </label>
+                    <label style="margin-top: 8px;">
+                        <span id="arrival-label">Arrivée</span>
+                        <input type="text" id="input-arrivee" placeholder="Ex: Gare de Lyon">
+                    </label>
+                </div>
+                <button id="btn-recherche" class="primary-btn" type="button">Calculer l'itinéraire</button>
+            </div>
+
+            <div class="card">
+                <p id="shortcuts-card-title" class="card-title">Raccourcis</p>
+                <div class="preset-toolbar">
+                    <button id="btn-add-preset" class="ghost-btn add-btn" type="button">Ajouter un raccourci</button>
+                    <button id="btn-reset-presets" class="ghost-btn reset-btn" type="button">Tout effacer</button>
+                    <button id="btn-confirm-reset" class="ghost-btn confirm-reset-btn is-hidden" type="button">Confirmer</button>
+                </div>
+                <div id="preset-list" class="preset-list"></div>
+            </div>
+
+            <div id="api-card" class="card api-card" role="button" tabindex="0" aria-label="Modifier la clé API">
+                <div class="api-container">
+                    <div id="api-status" class="api-status-bubble"></div>
+                    <div class="api-meta">
+                        <div class="api-row">
+                            <p id="api-card-title" class="api-label">État de l'API</p>
+                        </div>
+                        <p id="api-description" class="api-description">Vérification de la connexion…</p>
+                        <p id="api-edit-hint" class="api-edit-hint">Touchez cette carte pour modifier la clé</p>
+                        <p id="api-key-preview" class="api-key-preview"></p>
+                        <div id="api-key-editor" class="api-key-editor is-hidden">
+                            <input id="input-api-key" class="api-key-input" type="text" placeholder="Entrer votre clé API IDFM" autocomplete="off" spellcheck="false">
+                            <button id="btn-api-key-save" class="api-key-btn save" type="button">Sauvegarder</button>
+                            <button id="btn-api-key-cancel" class="api-key-btn" type="button">Annuler</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <p id="logs-card-title" class="card-title">Logs</p>
+                <div id="logs"></div>
+            </div>
+
+            <p class="footer-credit">
+                <span id="footer-credit-intro">Données fournies par </span><a href="https://data.iledefrance-mobilites.fr/pages/home/" target="_blank" rel="noreferrer noopener">Île-de-France Mobilités</a>
+            </p>
+        </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

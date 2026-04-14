@@ -1,0 +1,17 @@
+{
+  "name": "evengo-paris",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "dependencies": {
+    "@evenrealities/even_hub_sdk": "^0.0.10"
+  },
+  "devDependencies": {
+    "@evenrealities/evenhub-cli": "^0.1.11",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

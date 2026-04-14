@@ -1,0 +1,28 @@
+{
+  "package_id": "com.arkinos1.evengoparis",
+  "name": "EvenGo Paris",
+  "version": "1.0.0",
+  "description": "All your transport in Paris, in one place.",
+  "developer": "Arkinos1",
+  "edition": "202601",
+  "min_app_version": "1.0.0",
+  "min_sdk_version": "1.0.0",
+  "entrypoint": "index.html",
+  "permissions": [
+    {
+      "name": "network",
+      "desc": "Fetch public transport data from IDFM APIs."
+    },
+    {
+      "name": "location",
+      "desc": "Use phone location to help users find nearby routes."
+    }
+  ],
+  "supported_languages": [
+    "fr",
+    "en",
+    "es",
+    "de",
+    "zh"
+  ]
+}

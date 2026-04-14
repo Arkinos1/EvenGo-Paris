@@ -1,0 +1,36 @@
+# IDE / Editeurs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Dépendances
+node_modules/
+yarn.lock
+pnpm-lock.yaml
+
+# Build / Production
+dist/
+dist-ssr/
+.vite/
+*.local
+*.ehpk
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
