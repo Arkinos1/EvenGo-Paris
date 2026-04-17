@@ -57,6 +57,25 @@ export class EvenBridge {
     }
   }
 
+  async shutDownPageContainer(containerId = 1): Promise<boolean> {
+    if (!this.bridge) return false;
+
+    const maybeBridge = this.bridge as unknown as {
+      shutDownPageContainer?: (id: number) => Promise<number | boolean>;
+    };
+
+    if (typeof maybeBridge.shutDownPageContainer !== 'function') {
+      return false;
+    }
+
+    try {
+      const result = await maybeBridge.shutDownPageContainer(containerId);
+      return result === 0 || result === true;
+    } catch {
+      return false;
+    }
+  }
+
   private handleEventAndDispatch(event: any, onButtonPress: (btn: EvenButtonEvent) => void): void {
     const eventType = parseEventType(event);
     const now = Date.now();

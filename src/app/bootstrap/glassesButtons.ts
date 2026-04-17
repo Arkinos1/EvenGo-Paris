@@ -30,6 +30,7 @@ export async function handleGlassesButton(
         break;
 
       case 'double_click':
+        await navigator.requestExitDialog();
         break;
     }
     return;

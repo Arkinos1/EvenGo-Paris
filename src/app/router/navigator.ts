@@ -42,6 +42,10 @@ export class Navigator {
     await this.bridge.displayText(text);
   }
 
+  async requestExitDialog(): Promise<void> {
+    await this.bridge.shutDownPageContainer(1);
+  }
+
   /**
    * Scroll through presets
    */

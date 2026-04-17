@@ -1,6 +1,6 @@
-# EvenGo Paris
+# NextStop Paris
 
-EvenGo Paris is a mobile-first companion app for [Even Realities G2](https://www.evenrealities.com/) glasses. It helps you search places, build routes for Paris public transport, save shortcuts, and push a compact itinerary view to the glasses.
+NextStop Paris is a mobile-first companion app for [Even Realities G2](https://www.evenrealities.com/) glasses. It helps you search places, build routes for Paris public transport, save shortcuts, and push a compact itinerary view to the glasses.
 
 The app is designed to work with the G2 glasses and the phone UI together:
 
@@ -15,7 +15,7 @@ Phone interface:
 
 <table>
   <tr>
-    <img src="public/screenshot/WEB.png" alt="EvenGo Paris web app" width="900" />
+    <img src="public/screenshot/WEB.png" alt="NextStop Paris web app" width="900" />
   </tr>
 </table>
 

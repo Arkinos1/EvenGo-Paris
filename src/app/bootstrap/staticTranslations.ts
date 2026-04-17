@@ -12,7 +12,7 @@ export function applyStaticTranslations(ctx: AppContext): void {
   const departureLabel = document.getElementById('departure-label');
   const arrivalLabel = document.getElementById('arrival-label');
 
-  if (title) title.textContent = 'EvenGo Paris';
+  if (title) title.textContent = 'NextStop Paris';
   if (subtitle) subtitle.textContent = t(ctx.language, 'appSubtitle');
   if (journeyCardTitle) journeyCardTitle.textContent = t(ctx.language, 'journeyCardTitle');
   if (shortcutsCardTitle) shortcutsCardTitle.textContent = t(ctx.language, 'shortcutsCardTitle');
