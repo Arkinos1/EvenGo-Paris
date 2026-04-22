@@ -1,4 +1,4 @@
-import type { AppContext } from '../types';
+import type { AppContext, PlaceSuggestion, RouteData } from '../types';
 import type { EvenBridge } from '../bridge/evenBridge';
 import type { IdfmService } from '../idfm/idfmService';
 import { IdfmService as IdfmServiceImpl } from '../idfm/idfmService';
@@ -26,6 +26,20 @@ export class Navigator {
 
   private compactForGlasses(text: string): string {
     return text;
+  }
+
+  private formatRouteTransportPreview(route: RouteData): string {
+    const transportLabels = route.transportLabels.length > 0 ? route.transportLabels : [t(this.ctx.language, 'trainFallback')];
+    const previewLabels = transportLabels.slice(0, 3);
+    const moreCount = Math.max(0, transportLabels.length - previewLabels.length);
+    const walkLabel = route.walkMin > 0 ? `${t(this.ctx.language, 'walk')} ${route.walkMin} ${t(this.ctx.language, 'min')}` : '';
+    const transportLine = previewLabels.join(' • ');
+    const extraLine = moreCount > 0 ? ` +${moreCount}` : '';
+
+    return [
+      `${t(this.ctx.language, 'routeTransportPreview')}: ${transportLine}${extraLine}`,
+      walkLabel,
+    ].filter((value) => value.length > 0).join(' · ');
   }
 
   /**
@@ -84,13 +98,41 @@ export class Navigator {
 
     if (!depart || !arrivee) return;
 
-    await this.runJourney(depart, arrivee);
+    const selectedFromLocation = this.ctx.inputDepart?.dataset.navitiaLocation;
+    const selectedToLocation = this.ctx.inputArrivee?.dataset.navitiaLocation;
+
+    await this.runJourney(depart, arrivee, undefined, selectedFromLocation, selectedToLocation);
+  }
+
+  async getPlaceSuggestions(query: string): Promise<PlaceSuggestion[]> {
+    return this.idfmService.searchPlaceSuggestions(query);
+  }
+
+  async selectRouteOption(index: number): Promise<void> {
+    const bounded = Math.max(0, Math.min(index, this.ctx.availableRoutes.length - 1));
+    const selected = this.ctx.availableRoutes[bounded];
+    if (!selected) return;
+
+    this.ctx.currentRoute = selected;
+    this.ctx.currentRouteIndex = bounded;
+    this.ctx.summaryActionIndex = 0;
+    await this.displaySummary();
   }
 
   /**
    * Main journey computation: search places, fetch route, display
    */
-  private async runJourney(depart: string, arrivee: string, origin?: string): Promise<void> {
+  private async runJourney(
+    depart: string,
+    arrivee: string,
+    origin?: string,
+    selectedFromLocation?: string,
+    selectedToLocation?: string
+  ): Promise<void> {
+    this.ctx.availableRoutes = [];
+    this.ctx.currentRouteIndex = 0;
+    this.ctx.currentRoute = null;
+
     // Set loading state to prevent multiple clicks
     await StateManager.goToLoading(this.ctx);
 
@@ -123,7 +165,9 @@ export class Navigator {
     const logOrigin = origin || `${t(this.ctx.language, 'searchDeparture')}: ${depart}`;
     writeLog(this.ctx, logOrigin);
 
-    const coordDepart = await this.idfmService.searchPlace(depart);
+    const coordDepart = selectedFromLocation && selectedFromLocation.trim().length > 0
+      ? selectedFromLocation.trim()
+      : await this.idfmService.searchPlace(depart);
     if (!coordDepart) {
       await stopLoadingTicker();
       writeLog(this.ctx, `${t(this.ctx.language, 'departureNotFound')}: ${depart}`);
@@ -133,7 +177,9 @@ export class Navigator {
     }
 
     writeLog(this.ctx, `${t(this.ctx.language, 'searchArrival')}: ${arrivee}`);
-    const coordArrivee = await this.idfmService.searchPlace(arrivee);
+    const coordArrivee = selectedToLocation && selectedToLocation.trim().length > 0
+      ? selectedToLocation.trim()
+      : await this.idfmService.searchPlace(arrivee);
     if (!coordArrivee) {
       await stopLoadingTicker();
       writeLog(this.ctx, `${t(this.ctx.language, 'arrivalNotFound')}: ${arrivee}`);
@@ -142,15 +188,19 @@ export class Navigator {
       return;
     }
 
-    this.ctx.currentRoute = await this.idfmService.getJourney(coordDepart, coordArrivee);
+    const routeOptions = await this.idfmService.getJourneyOptions(coordDepart, coordArrivee, 3);
 
-    if (!this.ctx.currentRoute) {
+    if (!routeOptions.length) {
       await stopLoadingTicker();
       writeLog(this.ctx, t(this.ctx.language, 'noRouteBetweenPoints'));
       await StateManager.exitLoading(this.ctx);
       await this.displayPresetPicker();
       return;
     }
+
+    this.ctx.availableRoutes = routeOptions;
+    this.ctx.currentRouteIndex = 0;
+    this.ctx.currentRoute = routeOptions[0] || null;
 
     await stopLoadingTicker();
     await StateManager.exitLoading(this.ctx);
@@ -174,20 +224,26 @@ export class Navigator {
     const timeLine = lines[1] || '';
     const durationLine = lines[2] || '';
     const durationOnly = durationLine.split('•')[0]?.trim() || durationLine.trim();
+    const optionLine = `${t(this.ctx.language, 'routeOption')}: ${this.ctx.currentRouteIndex + 1}/${Math.max(1, this.ctx.availableRoutes.length)}`;
+    const transportPreviewLine = this.formatRouteTransportPreview(this.ctx.currentRoute);
     const fromLine = `${t(this.ctx.language, 'departure')}: ${this.shortenAddress(this.ctx.lastJourneyFrom || '-')}`;
     const toLine = `${t(this.ctx.language, 'arrival')}: ${this.shortenAddress(this.ctx.lastJourneyTo || '-')}`;
     const trafficMenuLabel = t(this.ctx.language, 'trafficDetails');
     const viewLine = `${this.ctx.summaryActionIndex === 0 ? '▶ ' : '   '}${t(this.ctx.language, 'viewJourney')}`;
     const trafficLine = `${this.ctx.summaryActionIndex === 1 ? '▶ ' : '   '}${trafficMenuLabel}`;
+    const hasRouteChoices = this.ctx.availableRoutes.length > 1;
+    const switchRouteLine = `${this.ctx.summaryActionIndex === 2 ? '▶ ' : '   '}${t(this.ctx.language, 'switchRouteOption')}`;
 
     const summaryText = [
       titleLine,
+      optionLine,
+      transportPreviewLine,
       fromLine,
       toLine,
       `${timeLine} ${durationOnly}`.trim(),
-      '',
       viewLine,
       trafficLine,
+      hasRouteChoices ? switchRouteLine : null,
     ].join('\n');
 
     // Temporary performance mode: disable image/logo rendering on glasses.
@@ -274,10 +330,12 @@ export class Navigator {
   async scrollSummary(direction: 'up' | 'down'): Promise<void> {
     if (!this.ctx.currentRoute) return;
 
+    const actionCount = this.ctx.availableRoutes.length > 1 ? 3 : 2;
+
     if (direction === 'down') {
-      StateManager.nextSummaryAction(this.ctx);
+      StateManager.nextSummaryAction(this.ctx, actionCount);
     } else {
-      StateManager.prevSummaryAction(this.ctx);
+      StateManager.prevSummaryAction(this.ctx, actionCount);
     }
 
     await this.displaySummary();
@@ -291,6 +349,12 @@ export class Navigator {
 
     if (this.ctx.summaryActionIndex === 0) {
       await this.displayStepsList();
+      return;
+    }
+
+    if (this.ctx.summaryActionIndex === 2 && this.ctx.availableRoutes.length > 1) {
+      const nextIndex = (this.ctx.currentRouteIndex + 1) % this.ctx.availableRoutes.length;
+      await this.selectRouteOption(nextIndex);
       return;
     }
 

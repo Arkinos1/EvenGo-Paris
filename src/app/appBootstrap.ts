@@ -9,18 +9,27 @@ import { applyStaticTranslations } from './bootstrap/staticTranslations';
 import { handleGlassesButton } from './bootstrap/glassesButtons';
 import { setupWebUIHandlers } from './bootstrap/webUiHandlers';
 import { t } from './i18n';
+import { setStorageBridge } from './storage/persistentStorage';
 
 export async function initializeApp(): Promise<void> {
   const ctx = createAppContext();
   document.documentElement.lang = ctx.language;
   applyStaticTranslations(ctx);
   const bridge = new EvenBridgeImpl();
+
+  try {
+    await bridge.connect();
+    setStorageBridge(bridge);
+  } catch {
+    setStorageBridge(null);
+  }
+
   const resolvedApiKey = await resolveIdfmApiKey();
   const idfmService = new IdfmServiceImpl(resolvedApiKey, ctx.language);
   const navigator = new NavigatorImpl(ctx, bridge, idfmService);
 
   // Load presets
-  ctx.travelPresets = PresetsManager.load();
+  ctx.travelPresets = await PresetsManager.load();
   renderPresetsDOM(ctx, ctx.travelPresets, null);
   setupApiKeyEditor(ctx, resolvedApiKey);
 
@@ -80,7 +89,8 @@ export async function initializeApp(): Promise<void> {
       })();
     };
 
-    await bridge.connect((btn: EvenButtonEvent) => {
+    await bridge.connect();
+    bridge.setButtonHandler((btn: EvenButtonEvent) => {
       dispatchGlassesEvent(btn);
     });
   } catch (err) {

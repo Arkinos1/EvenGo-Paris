@@ -157,14 +157,24 @@ export class StateManager {
   /**
    * Navigate to next summary action
    */
-  static nextSummaryAction(ctx: AppContext): void {
-    ctx.summaryActionIndex = ctx.summaryActionIndex === 0 ? 1 : 0;
+  static nextSummaryAction(ctx: AppContext, actionCount: number = 2): void {
+    if (actionCount <= 0) {
+      ctx.summaryActionIndex = 0;
+      return;
+    }
+
+    ctx.summaryActionIndex = (ctx.summaryActionIndex + 1) % actionCount;
   }
 
   /**
    * Navigate to previous summary action
    */
-  static prevSummaryAction(ctx: AppContext): void {
-    ctx.summaryActionIndex = ctx.summaryActionIndex === 0 ? 1 : 0;
+  static prevSummaryAction(ctx: AppContext, actionCount: number = 2): void {
+    if (actionCount <= 0) {
+      ctx.summaryActionIndex = 0;
+      return;
+    }
+
+    ctx.summaryActionIndex = (ctx.summaryActionIndex - 1 + actionCount) % actionCount;
   }
 }

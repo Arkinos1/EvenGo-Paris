@@ -11,6 +11,7 @@ export function createAppContext(): AppContext {
     inputDepart: document.getElementById('input-depart') as HTMLInputElement | null,
     inputArrivee: document.getElementById('input-arrivee') as HTMLInputElement | null,
     divLogs: document.getElementById('logs'),
+    routeOptionsContainer: document.getElementById('route-options'),
     presetList: document.getElementById('preset-list'),
     apiStatus: document.getElementById('api-status'),
     apiDescription: document.getElementById('api-description'),
@@ -21,6 +22,8 @@ export function createAppContext(): AppContext {
     // State
     currentState: 'PRESET_PICKER',
     currentRoute: null,
+    availableRoutes: [],
+    currentRouteIndex: 0,
     lastJourneyFrom: '',
     lastJourneyTo: '',
     currentStepIndex: 0,

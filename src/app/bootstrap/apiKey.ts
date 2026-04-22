@@ -2,14 +2,11 @@ import type { AppContext } from '../types';
 import { IDFM_API_KEY_STORAGE_KEY } from '../constants';
 import { writeLog } from '../core/context';
 import { t } from '../i18n';
+import { readPersistentValue, removePersistentValue, writePersistentValue } from '../storage/persistentStorage';
 
 export async function resolveIdfmApiKey(): Promise<string> {
-  try {
-    const fromStorage = (localStorage.getItem(IDFM_API_KEY_STORAGE_KEY) || '').trim();
-    if (fromStorage.length > 0) return fromStorage;
-  } catch {
-    // Ignore storage read errors.
-  }
+  const fromStorage = (await readPersistentValue(IDFM_API_KEY_STORAGE_KEY) || '').trim();
+  if (fromStorage.length > 0) return fromStorage;
 
   return '';
 }
@@ -61,13 +58,13 @@ export function setupApiKeyEditor(ctx: AppContext, currentApiKey: string): void 
     input.value = currentApiKey;
   });
 
-  saveButton.addEventListener('click', () => {
+  saveButton.addEventListener('click', async () => {
     const nextKey = input.value.trim();
     try {
       if (nextKey.length > 0) {
-        localStorage.setItem(IDFM_API_KEY_STORAGE_KEY, nextKey);
+        await writePersistentValue(IDFM_API_KEY_STORAGE_KEY, nextKey);
       } else {
-        localStorage.removeItem(IDFM_API_KEY_STORAGE_KEY);
+        await removePersistentValue(IDFM_API_KEY_STORAGE_KEY);
       }
     } catch {
       writeLog(ctx, `${t(ctx.language, 'errorPrefix')}: ${t(ctx.language, 'apiKeyStorageUnavailable')}`);

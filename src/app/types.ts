@@ -28,10 +28,20 @@ export interface TravelPreset {
 // Route data from IDFM API
 export interface RouteData {
   summary: string;
+  departureTime: string;
+  arrivalTime: string;
+  durationMin: number;
+  transportLabels: string[];
+  walkMin: number;
   shortSteps: string[];
   detailedSteps: string[];
   relevantDisruptions: string[];
   stepLogos?: Array<string | null>;
+}
+
+export interface PlaceSuggestion {
+  label: string;
+  location: string;
 }
 
 // Place from IDFM API search
@@ -62,6 +72,7 @@ export interface AppContext {
   inputDepart: HTMLInputElement | null;
   inputArrivee: HTMLInputElement | null;
   divLogs: HTMLElement | null;
+  routeOptionsContainer: HTMLElement | null;
   presetList: HTMLElement | null;
   apiStatus: HTMLElement | null;
   apiDescription: HTMLElement | null;
@@ -72,6 +83,8 @@ export interface AppContext {
   // State
   currentState: AppState;
   currentRoute: RouteData | null;
+  availableRoutes: RouteData[];
+  currentRouteIndex: number;
   lastJourneyFrom: string;
   lastJourneyTo: string;
   currentStepIndex: number;
@@ -84,6 +97,6 @@ export interface AppContext {
   selectedPresetForTime: TravelPreset | null;
   currentTimeOffset: number; // In minutes
   isLoading: boolean; // Prevent multiple clicks during journey loading
-  summaryActionIndex: number; // 0 = view journey, 1 = traffic info
+  summaryActionIndex: number; // 0 = view journey, 1 = traffic info, 2 = switch route option
   apiConnectionState: 'checking' | 'ok' | 'unauthorized' | 'error';
 }

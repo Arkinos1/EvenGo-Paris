@@ -1,18 +1,19 @@
 import { LEGACY_PRESET_STORAGE_KEY, PRESET_STORAGE_KEY } from '../constants';
 import type { TravelPreset } from '../types';
 import { generateUUID } from '../utils/index';
+import { readPersistentValue, removePersistentValue, writePersistentValue } from '../storage/persistentStorage';
 
 /**
  * Manage travel presets in localStorage
  */
 export class PresetsManager {
   /**
-   * Load presets from localStorage
+   * Load presets from persistent storage
    */
-  static load(): TravelPreset[] {
+  static async load(): Promise<TravelPreset[]> {
     try {
-      const rawCurrent = localStorage.getItem(PRESET_STORAGE_KEY);
-      const rawLegacy = rawCurrent ? null : localStorage.getItem(LEGACY_PRESET_STORAGE_KEY);
+      const rawCurrent = await readPersistentValue(PRESET_STORAGE_KEY);
+      const rawLegacy = rawCurrent ? null : await readPersistentValue(LEGACY_PRESET_STORAGE_KEY);
       const raw = rawCurrent ?? rawLegacy;
       if (!raw) return [];
 
@@ -30,9 +31,9 @@ export class PresetsManager {
 
       // One-shot migration from old storage key to new branded key.
       if (!rawCurrent && rawLegacy) {
-        this.save(cleaned);
+        await this.save(cleaned);
         try {
-          localStorage.removeItem(LEGACY_PRESET_STORAGE_KEY);
+          await removePersistentValue(LEGACY_PRESET_STORAGE_KEY);
         } catch {
           // Ignore storage cleanup errors.
         }
@@ -45,13 +46,12 @@ export class PresetsManager {
   }
 
   /**
-   * Save presets to localStorage
+   * Save presets to persistent storage
    */
-  static save(presets: TravelPreset[]): void {
+  static async save(presets: TravelPreset[]): Promise<void> {
     try {
-      localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets));
+      await writePersistentValue(PRESET_STORAGE_KEY, JSON.stringify(presets));
     } catch {
-      // Some mobile browsers/webviews can block or fail localStorage writes.
       // Keep the app functional even if persistence is unavailable.
     }
   }

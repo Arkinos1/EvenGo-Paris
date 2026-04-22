@@ -37,6 +37,7 @@ function parseEventType(event: any): string | number | undefined {
 export class EvenBridge {
   private bridge: EvenAppBridge | null = null;
   private isConnected = false;
+  private buttonHandler: ((btn: EvenButtonEvent) => void) | null = null;
   private lastScrollTs = 0;
   private lastScrollDirection: EvenButtonEvent | null = null;
   private readonly logoBytesCache = new Map<string, number[]>();
@@ -44,16 +45,45 @@ export class EvenBridge {
   private lastTextTs = 0;
   private textLayoutReady = false;
 
-  async connect(onButtonPress: (btn: EvenButtonEvent) => void): Promise<void> {
+  async connect(onButtonPress?: (btn: EvenButtonEvent) => void): Promise<void> {
     if (this.isConnected) return;
+
+    if (onButtonPress) {
+      this.buttonHandler = onButtonPress;
+    }
 
     this.bridge = await waitForEvenAppBridge();
     this.isConnected = true;
 
     if (this.bridge.onEvenHubEvent) {
       this.bridge.onEvenHubEvent((event: any) => {
-        this.handleEventAndDispatch(event, onButtonPress);
+        this.handleEventAndDispatch(event);
       });
+    }
+  }
+
+  setButtonHandler(onButtonPress: (btn: EvenButtonEvent) => void): void {
+    this.buttonHandler = onButtonPress;
+  }
+
+  async getLocalStorage(key: string): Promise<string | null> {
+    if (!this.bridge) return null;
+
+    try {
+      return await this.bridge.getLocalStorage(key);
+    } catch {
+      return null;
+    }
+  }
+
+  async setLocalStorage(key: string, value: string): Promise<boolean> {
+    if (!this.bridge) return false;
+
+    try {
+      await this.bridge.setLocalStorage(key, value);
+      return true;
+    } catch {
+      return false;
     }
   }
 
@@ -76,7 +106,10 @@ export class EvenBridge {
     }
   }
 
-  private handleEventAndDispatch(event: any, onButtonPress: (btn: EvenButtonEvent) => void): void {
+  private handleEventAndDispatch(event: any): void {
+    if (!this.buttonHandler) return;
+
+    const onButtonPress = this.buttonHandler;
     const eventType = parseEventType(event);
     const now = Date.now();
 

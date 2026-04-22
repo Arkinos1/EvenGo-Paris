@@ -7,6 +7,7 @@ export function applyStaticTranslations(ctx: AppContext): void {
   const journeyCardTitle = document.getElementById('journey-card-title');
   const shortcutsCardTitle = document.getElementById('shortcuts-card-title');
   const logsCardTitle = document.getElementById('logs-card-title');
+  const routeOptionsTitle = document.getElementById('route-options-title');
   const apiCardTitle = document.getElementById('api-card-title');
   const footerCreditIntro = document.getElementById('footer-credit-intro');
   const departureLabel = document.getElementById('departure-label');
@@ -17,6 +18,7 @@ export function applyStaticTranslations(ctx: AppContext): void {
   if (journeyCardTitle) journeyCardTitle.textContent = t(ctx.language, 'journeyCardTitle');
   if (shortcutsCardTitle) shortcutsCardTitle.textContent = t(ctx.language, 'shortcutsCardTitle');
   if (logsCardTitle) logsCardTitle.textContent = t(ctx.language, 'logsCardTitle');
+  if (routeOptionsTitle) routeOptionsTitle.textContent = t(ctx.language, 'routeOptionsTitle');
   if (apiCardTitle) apiCardTitle.textContent = t(ctx.language, 'apiCardTitle');
   if (footerCreditIntro) footerCreditIntro.textContent = t(ctx.language, 'footerCreditIntro');
   if (departureLabel) departureLabel.textContent = t(ctx.language, 'departure');
