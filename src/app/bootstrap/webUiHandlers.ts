@@ -237,6 +237,11 @@ function bindSuggestionsForInput(
 
   input.addEventListener('input', () => {
     if (isProcessingSelection) return;
+
+    // Editing text after selecting a suggestion must reopen autocomplete.
+    if (input.dataset.navitiaLocation) {
+      delete input.dataset.navitiaLocation;
+    }
     
     if (debounceTimer) window.clearTimeout(debounceTimer);
     debounceTimer = window.setTimeout(() => {
